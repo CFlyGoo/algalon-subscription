@@ -26,11 +26,6 @@ public final class StringTopic implements Topic {
   }
 
   @Override
-  public boolean isAssignableFrom(Topic topic) {
-    return (topic instanceof StringTopic) && name().equals(topic.name());
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;

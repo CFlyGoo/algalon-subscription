@@ -1,11 +1,12 @@
 package com.apehat.algalon.subscription.infra;
 
 import com.apehat.algalon.subscription.Digest;
-import com.apehat.algalon.subscription.MappingArbiter;
 import com.apehat.algalon.subscription.Subscription;
 import com.apehat.algalon.subscription.SubscriptionDescriptor;
 import com.apehat.algalon.subscription.Subscriptions;
 import com.apehat.algalon.subscription.Topic;
+import com.apehat.algalon.subscription.TopicMapper;
+import com.apehat.algalon.subscription.infra.topic.DefaultTopicMapper;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
@@ -16,8 +17,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class StandardSubscriptions implements Subscriptions {
 
+  private static final TopicMapper DEFAULT_TOPIC_MAPPER = new DefaultTopicMapper();
+
   private final Map<Topic, Subscription> subscriptions = new ConcurrentHashMap<>();
-  private final MappingArbiter arbiter = new DefaultMappingArbiter();
+  private TopicMapper mapper;
+
+  public StandardSubscriptions() {
+    this(DEFAULT_TOPIC_MAPPER);
+  }
+
+  public StandardSubscriptions(TopicMapper mapper) {
+    this.mapper = mapper;
+  }
 
   @Override
   public boolean isSubscribed(Digest digest) {
@@ -52,6 +63,10 @@ public class StandardSubscriptions implements Subscriptions {
     return provisionSubscription(topic, false);
   }
 
+  public TopicMapper getTopicMapper() {
+    return mapper;
+  }
+
   private void save(Subscription subscription) {
     this.subscriptions.putIfAbsent(subscription.topic(), subscription);
   }
@@ -72,7 +87,7 @@ public class StandardSubscriptions implements Subscriptions {
     return subscription;
   }
 
-  private MappingArbiter arbiter() {
-    return arbiter;
+  private TopicMapper arbiter() {
+    return mapper;
   }
 }

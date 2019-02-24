@@ -25,15 +25,7 @@ public final class ClassTopic implements Topic {
     return klass.getName();
   }
 
-  @Override
-  public boolean isAssignableFrom(Topic topic) {
-    if (topic instanceof ClassTopic) {
-      return source().isAssignableFrom(((ClassTopic) topic).source());
-    }
-    return false;
-  }
-
-  private Class<?> source() {
+  public Class<?> source() {
     return klass;
   }
 

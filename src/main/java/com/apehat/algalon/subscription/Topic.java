@@ -9,5 +9,4 @@ public interface Topic extends Serializable {
 
   String name();
 
-  boolean isAssignableFrom(Topic topic);
 }
