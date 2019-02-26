@@ -38,7 +38,7 @@ public final class Subscriber {
   public boolean isSubscribed(Digest digest, TopicMapper mapper) {
     assertNotLaterThanCalling(digest);
 
-    final Instant occurTime = digest.occurTime();
+    final Instant occurTime = digest.time();
     final Topic topic = digest.topic();
 
     Instant lastOccurTime = Instant.MIN;
@@ -89,7 +89,7 @@ public final class Subscriber {
 
   protected final void assertNotLaterThanCalling(Digest digest) {
     Instant now = Instant.now();
-    if (digest.occurTime().isAfter(now)) {
+    if (digest.time().isAfter(now)) {
       throw new IllegalArgumentException("The timestamp cannot be latter than the " + now);
     }
   }

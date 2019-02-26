@@ -26,14 +26,14 @@ public class SubscriptionService {
     if (subscriberOf(id) != null) {
       throw new IllegalStateException("Subscriber " + id + " already exists");
     }
-    subscriberRegistry().save(new Subscriber(id, InstantSubscriptionFactory.getInstance()));
+    subscriberRepo().save(new Subscriber(id, InstantSubscriptionFactory.getInstance()));
   }
 
   public void registerSubscriber(SubscriberId id) {
     if (subscriberOf(id) != null) {
       throw new IllegalStateException("Subscriber " + id + " already exists");
     }
-    subscriberRegistry().save(new Subscriber(id, SimpleSubscriptionFactory.getInstance()));
+    subscriberRepo().save(new Subscriber(id, SimpleSubscriptionFactory.getInstance()));
   }
 
   public void subscribe(SubscriberId id, Class<?> topic) {
@@ -52,8 +52,12 @@ public class SubscriptionService {
     unsubscribe(id, StringTopic.of(topic));
   }
 
+  public Set<SubscriberDescriptor> subscribersOf(Topic topic) {
+    return subscribersOf(Digest.atCurrent(topic));
+  }
+
   public Set<SubscriberDescriptor> subscribersOf(Digest digest) {
-    Collection<Subscriber> subscribers = subscriberRegistry().subscribersOf(digest, topicMapper);
+    Collection<Subscriber> subscribers = subscriberRepo().subscribersOf(digest, topicMapper);
     Set<SubscriberDescriptor> descriptors = new LinkedHashSet<>();
     for (Subscriber subscriber : subscribers) {
       descriptors.add(subscriber.toDescriptor());
@@ -64,17 +68,17 @@ public class SubscriptionService {
   private void subscribe(SubscriberId id, Topic topic) {
     Subscriber subscriber = nonNullSubscriberOf(id);
     subscriber.subscribe(topic);
-    subscriberRegistry().save(subscriber);
+    subscriberRepo().save(subscriber);
   }
 
   private void unsubscribe(SubscriberId id, Topic topic) {
     Subscriber subscriber = nonNullSubscriberOf(id);
     subscriber.unsubscribe(topic);
-    subscriberRegistry().save(subscriber);
+    subscriberRepo().save(subscriber);
   }
 
   private Subscriber subscriberOf(SubscriberId id) {
-    return subscriberRegistry().find(id);
+    return subscriberRepo().find(id);
   }
 
   private Subscriber nonNullSubscriberOf(SubscriberId id) {
@@ -85,7 +89,7 @@ public class SubscriptionService {
     return subscriber;
   }
 
-  private SubscriberRepository subscriberRegistry() {
+  private SubscriberRepository subscriberRepo() {
     return subscriberRepository;
   }
 }
