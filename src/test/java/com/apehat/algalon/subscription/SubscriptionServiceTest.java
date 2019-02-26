@@ -16,9 +16,14 @@ public class SubscriptionServiceTest extends AbstractSubscriptionTest {
   private static final Class<?> CLASS_TOPIC = SubscriptionServiceTest.class;
   private static final String STRING_TOPIC = CLASS_TOPIC.getSimpleName();
 
+  public SubscriptionServiceTest() {
+    super(SubscriptionStrategy.timeLimit());
+  }
+
   @Test
   public void provisionWithNotExistsSubscriber() {
-    SubscriberId id = register();
+    String name = register();
+    SubscriberId id = provisionSubscriberIdFixture(name);
     Subscriber subscriber = provisionSubscriberRepositoryFixture().find(id);
     assertNotNull(subscriber);
     assertEquals(id, subscriber.id());
@@ -26,34 +31,35 @@ public class SubscriptionServiceTest extends AbstractSubscriptionTest {
 
   @Test
   public void subscribeByClass() {
-    SubscriberId id = register();
-    Pair pair = subscribeWithClass(id);
+    String name = register();
+    Pair pair = subscribeWithClass(name);
 
-    Subscriber subscriber = provisionSubscriberRepositoryFixture().find(id);
+    Subscriber subscriber = provisionSubscriberRepositoryFixture()
+        .find(provisionSubscriberIdFixture(name));
     assertFalse(subscriber.isSubscribed(pair.frontDigest, provisionTopicMapperFixture()));
     assertTrue(subscriber.isSubscribed(pair.rearDigest, provisionTopicMapperFixture()));
   }
 
   @Test
   public void subscribeByString() {
-    SubscriberId id = register();
-    Pair pair = subscribeWithString(id);
+    String name = register();
+    Pair pair = subscribeWithString(name);
 
-    Subscriber subscriber = provisionSubscriberRepositoryFixture().find(id);
+    Subscriber subscriber = provisionSubscriberRepositoryFixture()
+        .find(provisionSubscriberIdFixture(name));
     assertFalse(subscriber.isSubscribed(pair.frontDigest, provisionTopicMapperFixture()));
     assertTrue(subscriber.isSubscribed(pair.rearDigest, provisionTopicMapperFixture()));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void subscribeByClassWithIllegalId() {
-    SubscriberId id = provisionSubscriberIdFixture();
-    provisionSubscriptionServiceFixture().subscribe(id, CLASS_TOPIC);
+    provisionSubscriptionServiceFixture().subscribe(provisionSubscriberNameFixture(), CLASS_TOPIC);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void subscribeByStringWithIllegalId() {
-    SubscriberId id = provisionSubscriberIdFixture();
-    provisionSubscriptionServiceFixture().subscribe(id, STRING_TOPIC);
+    String name = provisionSubscriberNameFixture();
+    provisionSubscriptionServiceFixture().subscribe(name, STRING_TOPIC);
   }
 
   @Test
@@ -68,19 +74,19 @@ public class SubscriptionServiceTest extends AbstractSubscriptionTest {
   public void subscribersOf() {
   }
 
-  private Pair subscribeWithClass(SubscriberId id) {
+  private Pair subscribeWithClass(String name) {
     Digest frontDigest = provisionDigestFixture(CLASS_TOPIC);
-    untilNextNanoTimeOf(frontDigest.occurTime());
+    untilNextNanoTimeOf(frontDigest.time());
 
-    provisionSubscriptionServiceFixture().subscribe(id, CLASS_TOPIC);
+    provisionSubscriptionServiceFixture().subscribe(name, CLASS_TOPIC);
     Digest rearDigest = provisionDigestFixture(CLASS_TOPIC);
     return new Pair(frontDigest, rearDigest);
   }
 
-  private Pair subscribeWithString(SubscriberId id) {
+  private Pair subscribeWithString(String name) {
     Digest frontDigest = provisionDigestFixture(STRING_TOPIC);
-    untilNextNanoTimeOf(frontDigest.occurTime());
-    provisionSubscriptionServiceFixture().subscribe(id, STRING_TOPIC);
+    untilNextNanoTimeOf(frontDigest.time());
+    provisionSubscriptionServiceFixture().subscribe(name, STRING_TOPIC);
     Digest rearDigest = provisionDigestFixture(STRING_TOPIC);
     return new Pair(frontDigest, rearDigest);
   }
@@ -92,10 +98,10 @@ public class SubscriptionServiceTest extends AbstractSubscriptionTest {
     }
   }
 
-  private SubscriberId register() {
-    SubscriberId id = provisionSubscriberIdFixture();
-    provisionSubscriptionServiceFixture().registerTimeLimitSubscriber(id);
-    return id;
+  private String register() {
+    String name = provisionSubscriberNameFixture();
+    provisionSubscriptionServiceFixture().registerSubscriber(name);
+    return name;
   }
 
   private static final class Pair {

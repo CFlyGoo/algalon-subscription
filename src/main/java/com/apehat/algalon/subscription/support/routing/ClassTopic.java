@@ -1,4 +1,4 @@
-package com.apehat.algalon.subscription.routing;
+package com.apehat.algalon.subscription.support.routing;
 
 import com.apehat.algalon.subscription.Topic;
 import java.util.Objects;

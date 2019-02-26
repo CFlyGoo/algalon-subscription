@@ -1,9 +1,7 @@
 package com.apehat.algalon.subscription;
 
-import com.apehat.algalon.subscription.infra.InstantSubscriptionFactory;
-import com.apehat.algalon.subscription.infra.SimpleSubscriptionFactory;
-import com.apehat.algalon.subscription.routing.ClassTopic;
-import com.apehat.algalon.subscription.routing.StringTopic;
+import com.apehat.algalon.subscription.support.routing.ClassTopic;
+import com.apehat.algalon.subscription.support.routing.StringTopic;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -16,40 +14,37 @@ public class SubscriptionService {
 
   private final SubscriberRepository subscriberRepository;
   private final TopicMapper topicMapper;
+  private final SubscriptionStrategy strategy;
 
-  public SubscriptionService(SubscriberRepository subscriberRepository, TopicMapper topicMapper) {
+  public SubscriptionService(SubscriberRepository subscriberRepository,
+      TopicMapper topicMapper, SubscriptionStrategy subscriptionStrategy) {
     this.subscriberRepository = Objects.requireNonNull(subscriberRepository);
     this.topicMapper = Objects.requireNonNull(topicMapper);
+    this.strategy = Objects.requireNonNull(subscriptionStrategy);
   }
 
-  public void registerTimeLimitSubscriber(SubscriberId id) {
+  public void registerSubscriber(String name) {
+    SubscriberId id = new SubscriberId(name);
     if (subscriberOf(id) != null) {
       throw new IllegalStateException("Subscriber " + id + " already exists");
     }
-    subscriberRepo().save(new Subscriber(id, InstantSubscriptionFactory.getInstance()));
+    subscriberRepo().save(new Subscriber(id, strategy));
   }
 
-  public void registerSubscriber(SubscriberId id) {
-    if (subscriberOf(id) != null) {
-      throw new IllegalStateException("Subscriber " + id + " already exists");
-    }
-    subscriberRepo().save(new Subscriber(id, SimpleSubscriptionFactory.getInstance()));
+  public void subscribe(String name, Class<?> topic) {
+    subscribe(name, ClassTopic.of(topic));
   }
 
-  public void subscribe(SubscriberId id, Class<?> topic) {
-    subscribe(id, ClassTopic.of(topic));
+  public void subscribe(String name, String topic) {
+    subscribe(name, StringTopic.of(topic));
   }
 
-  public void subscribe(SubscriberId id, String topic) {
-    subscribe(id, StringTopic.of(topic));
+  public void unsubscribe(String name, Class<?> topic) {
+    unsubscribe(name, ClassTopic.of(topic));
   }
 
-  public void unsubscribe(SubscriberId id, Class<?> topic) {
-    unsubscribe(id, ClassTopic.of(topic));
-  }
-
-  public void unsubscribe(SubscriberId id, String topic) {
-    unsubscribe(id, StringTopic.of(topic));
+  public void unsubscribe(String name, String topic) {
+    unsubscribe(name, StringTopic.of(topic));
   }
 
   public Set<SubscriberDescriptor> subscribersOf(Topic topic) {
@@ -65,13 +60,15 @@ public class SubscriptionService {
     return descriptors;
   }
 
-  private void subscribe(SubscriberId id, Topic topic) {
+  private void subscribe(String name, Topic topic) {
+    SubscriberId id = new SubscriberId(name);
     Subscriber subscriber = nonNullSubscriberOf(id);
     subscriber.subscribe(topic);
     subscriberRepo().save(subscriber);
   }
 
-  private void unsubscribe(SubscriberId id, Topic topic) {
+  private void unsubscribe(String name, Topic topic) {
+    SubscriberId id = new SubscriberId(name);
     Subscriber subscriber = nonNullSubscriberOf(id);
     subscriber.unsubscribe(topic);
     subscriberRepo().save(subscriber);

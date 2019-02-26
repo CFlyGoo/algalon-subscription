@@ -13,5 +13,5 @@ public interface Subscription {
 
   void inactivate();
 
-  SubscriptionDescriptor at(Instant instant);
+  SubscriptionDescriptor descriptorAt(Instant instant);
 }

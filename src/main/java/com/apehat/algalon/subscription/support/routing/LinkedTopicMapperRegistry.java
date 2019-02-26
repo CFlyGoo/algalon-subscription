@@ -1,20 +1,19 @@
-package com.apehat.algalon.subscription.routing;
+package com.apehat.algalon.subscription.support.routing;
 
 import com.apehat.algalon.subscription.Topic;
 import com.apehat.algalon.subscription.TopicMapper;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
  * @author cflygoo
  */
-public final class DefaultTopicMapper implements TopicMapper {
+public class LinkedTopicMapperRegistry implements TopicMapper {
 
-  private final Set<TopicMapper> mappers = new HashSet<>();
+  private final Set<TopicMapper> mappers = new LinkedHashSet<>();
 
-  public DefaultTopicMapper() {
-    mappers.add(new ClassTopicMapper());
-    mappers.add(new StringTopicMapper());
+  public void registerMapper(TopicMapper mapper) {
+    this.mappers.add(mapper);
   }
 
   @Override

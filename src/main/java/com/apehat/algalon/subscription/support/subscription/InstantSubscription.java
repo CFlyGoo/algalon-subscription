@@ -1,8 +1,10 @@
-package com.apehat.algalon.subscription.infra;
+package com.apehat.algalon.subscription.support.subscription;
 
 import com.apehat.algalon.subscription.Subscription;
 import com.apehat.algalon.subscription.SubscriptionDescriptor;
 import com.apehat.algalon.subscription.Topic;
+import com.apehat.algalon.subscription.support.descriptor.RecordableSubscriptionDescriptor;
+import com.apehat.algalon.subscription.support.descriptor.SimpleSubscriptionDescriptor;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Set;
@@ -45,7 +47,7 @@ public final class InstantSubscription implements Subscription {
   }
 
   @Override
-  public SubscriptionDescriptor at(Instant time) {
+  public SubscriptionDescriptor descriptorAt(Instant time) {
     if (time.isAfter(Instant.now())) {
       throw new IllegalArgumentException(
           "The time " + time + " shouldn't latter than the calling");
@@ -69,7 +71,7 @@ public final class InstantSubscription implements Subscription {
         return details;
       }
     }
-    throw new AssertionError("Cannot find at " + time);
+    throw new AssertionError("Cannot find descriptorAt " + time);
   }
 
   private void flush(boolean available) {

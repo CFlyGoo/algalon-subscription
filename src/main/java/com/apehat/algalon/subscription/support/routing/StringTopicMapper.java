@@ -1,4 +1,4 @@
-package com.apehat.algalon.subscription.routing;
+package com.apehat.algalon.subscription.support.routing;
 
 import com.apehat.algalon.subscription.Topic;
 import com.apehat.algalon.subscription.TopicMapper;
@@ -13,6 +13,29 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class StringTopicMapper implements TopicMapper {
 
   private final Map<StringTopic, Set<Topic>> maps = new ConcurrentHashMap<>();
+
+  public void removeMapping(String primary, String map) {
+    removeMapping(StringTopic.of(primary), StringTopic.of(map));
+  }
+
+  public void removeMapping(String primary, Topic topic) {
+    removeMapping(StringTopic.of(primary), topic);
+  }
+
+  public void removeMapping(StringTopic primary, Topic topic) {
+    if (primary.equals(topic)) {
+      throw new IllegalArgumentException("Cannot remove mapping with self of " + primary);
+    }
+    maps.get(primary).remove(topic);
+  }
+
+  public void addMapping(String primary, String map) {
+    addMapping(StringTopic.of(primary), StringTopic.of(map));
+  }
+
+  public void addMapping(String primary, Topic map) {
+    addMapping(StringTopic.of(primary), map);
+  }
 
   public void addMapping(StringTopic primary, Topic map) {
     if (primary.equals(map)) {

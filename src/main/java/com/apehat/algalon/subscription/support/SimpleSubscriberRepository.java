@@ -1,4 +1,4 @@
-package com.apehat.algalon.subscription.infra;
+package com.apehat.algalon.subscription.support;
 
 import com.apehat.algalon.subscription.Digest;
 import com.apehat.algalon.subscription.Subscriber;

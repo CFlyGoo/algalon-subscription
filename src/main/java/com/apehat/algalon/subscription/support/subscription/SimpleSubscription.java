@@ -1,8 +1,9 @@
-package com.apehat.algalon.subscription.infra;
+package com.apehat.algalon.subscription.support.subscription;
 
 import com.apehat.algalon.subscription.Subscription;
 import com.apehat.algalon.subscription.SubscriptionDescriptor;
 import com.apehat.algalon.subscription.Topic;
+import com.apehat.algalon.subscription.support.descriptor.SimpleSubscriptionDescriptor;
 import java.time.Instant;
 
 /**
@@ -13,7 +14,7 @@ public class SimpleSubscription implements Subscription {
   private final Topic topic;
   private volatile boolean activate;
 
-  public SimpleSubscription(Topic topic, boolean activate) {
+  SimpleSubscription(Topic topic, boolean activate) {
     this.topic = topic;
     this.activate = activate;
   }
@@ -34,7 +35,7 @@ public class SimpleSubscription implements Subscription {
   }
 
   @Override
-  public SubscriptionDescriptor at(Instant instant) {
+  public SubscriptionDescriptor descriptorAt(Instant instant) {
     return new SimpleSubscriptionDescriptor(instant, activate);
   }
 }

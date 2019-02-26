@@ -1,4 +1,4 @@
-package com.apehat.algalon.subscription.infra;
+package com.apehat.algalon.subscription.support.descriptor;
 
 import com.apehat.algalon.subscription.SubscriptionDescriptor;
 import java.time.Instant;
@@ -11,13 +11,13 @@ public class RecordableSubscriptionDescriptor
 
   private final Instant endTime;
 
-  RecordableSubscriptionDescriptor(Instant startInstance, Instant endInstant,
+  public RecordableSubscriptionDescriptor(Instant startInstance, Instant endInstant,
       boolean available) {
     super(startInstance, available);
     this.endTime = endInstant;
   }
 
-  RecordableSubscriptionDescriptor(SubscriptionDescriptor details, Instant endTime) {
+  public RecordableSubscriptionDescriptor(SubscriptionDescriptor details, Instant endTime) {
     super(details.startTime(), details.isAvailable());
     this.endTime = endTime;
   }

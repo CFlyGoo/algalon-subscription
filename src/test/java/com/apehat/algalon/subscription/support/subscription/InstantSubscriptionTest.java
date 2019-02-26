@@ -1,9 +1,10 @@
-package com.apehat.algalon.subscription.infra;
+package com.apehat.algalon.subscription.support.subscription;
 
 import com.apehat.algalon.subscription.AbstractSubscriptionTest;
 import com.apehat.algalon.subscription.Subscription;
+import com.apehat.algalon.subscription.SubscriptionStrategy;
 import com.apehat.algalon.subscription.Topic;
-import com.apehat.algalon.subscription.routing.ClassTopic;
+import com.apehat.algalon.subscription.support.routing.ClassTopic;
 import org.junit.Test;
 
 /**
@@ -14,6 +15,10 @@ public class InstantSubscriptionTest extends AbstractSubscriptionTest {
   private final boolean initEnable = true;
   private final Topic topic = ClassTopic.of(InstantSubscriptionTest.class);
   private final Subscription subscription = new InstantSubscription(topic, initEnable);
+
+  public InstantSubscriptionTest() {
+    super(SubscriptionStrategy.timeLimit());
+  }
 
   @Test
   public void concurrentTest() {

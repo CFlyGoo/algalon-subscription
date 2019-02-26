@@ -1,4 +1,4 @@
-package com.apehat.algalon.subscription.infra;
+package com.apehat.algalon.subscription.support.descriptor;
 
 import com.apehat.algalon.subscription.SubscriptionDescriptor;
 import java.time.Instant;
@@ -12,7 +12,7 @@ public class SimpleSubscriptionDescriptor implements SubscriptionDescriptor {
   private final Instant startTime;
   private final boolean available;
 
-  SimpleSubscriptionDescriptor(Instant startTime, boolean available) {
+  public SimpleSubscriptionDescriptor(Instant startTime, boolean available) {
     this.startTime = startTime;
     this.available = available;
   }

@@ -14,17 +14,17 @@ public final class Digest implements Serializable {
   private final Topic topic;
   private final Instant time;
 
+  private Digest(Topic topic, Instant time) {
+    this.topic = Objects.requireNonNull(topic);
+    this.time = time;
+  }
+
   public static Digest atCurrent(Topic topic) {
     return new Digest(topic, Instant.now());
   }
 
   public static Digest of(Topic topic, Instant time) {
     return new Digest(topic, time);
-  }
-
-  private Digest(Topic topic, Instant time) {
-    this.topic = Objects.requireNonNull(topic);
-    this.time = time;
   }
 
   public Topic topic() {
