@@ -1,7 +1,10 @@
 package com.apehat.algalon.subscription;
 
-import com.apehat.algalon.subscription.infra.StandardSubscriptions;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author cflygoo
@@ -9,27 +12,54 @@ import java.util.Objects;
 public final class Subscriber {
 
   private final SubscriberId id;
-  private final Subscriptions subscriptions;
+  private final SubscriptionFactory subscriptionFactory;
+  private final Map<Topic, Subscription> subscriptions;
 
-  Subscriber(SubscriberId id) {
-    this(id, new StandardSubscriptions());
-  }
-
-  private Subscriber(SubscriberId id, Subscriptions subscription) {
+  public Subscriber(SubscriberId id, SubscriptionFactory subscriptionFactory) {
     this.id = Objects.requireNonNull(id);
-    this.subscriptions = Objects.requireNonNull(subscription);
+    this.subscriptionFactory = Objects.requireNonNull(subscriptionFactory);
+    this.subscriptions = new ConcurrentHashMap<>();
   }
 
   void subscribe(Topic topic) {
-    subscriptions().provisionSubscriptionMayActivated(topic).activate();
+    Subscription subscription =
+        subscriptionFactory().provisionSubscriptionMayActivated(topic);
+    subscription.activate();
+    subscriptions.put(topic, subscription);
   }
 
   void unsubscribe(Topic topic) {
-    subscriptions().provisionSubscriptionMayInactivated(topic).activate();
+    Subscription subscription =
+        subscriptionFactory().provisionSubscriptionMayInactivated(topic);
+    subscription.inactivate();
+    subscriptions.put(topic, subscription);
   }
 
-  public boolean isSubscribed(Digest digest) {
-    return subscriptions().isSubscribed(digest);
+  public boolean isSubscribed(Digest digest, TopicMapper mapper) {
+    assertNotLaterThanCalling(digest);
+
+    final Instant occurTime = digest.occurTime();
+    final Topic topic = digest.topic();
+
+    Instant lastOccurTime = Instant.MIN;
+    boolean available = false;
+
+    Set<Topic> topics = subscriptions.keySet();
+    for (Topic tpc : topics) {
+      if (mapper.isMapping(tpc, topic)) {
+        SubscriptionDescriptor details = subscriptions.get(tpc).at(occurTime);
+        if (details.startTime().isAfter(lastOccurTime)) {
+          lastOccurTime = details.startTime();
+          available = details.isAvailable();
+          assert !lastOccurTime.isAfter(occurTime);
+        }
+      }
+    }
+    return available;
+  }
+
+  private SubscriptionFactory subscriptionFactory() {
+    return subscriptionFactory;
   }
 
   SubscriberDescriptor toDescriptor() {
@@ -57,7 +87,10 @@ public final class Subscriber {
     return Objects.hash(id);
   }
 
-  private Subscriptions subscriptions() {
-    return this.subscriptions;
+  protected final void assertNotLaterThanCalling(Digest digest) {
+    Instant now = Instant.now();
+    if (digest.occurTime().isAfter(now)) {
+      throw new IllegalArgumentException("The timestamp cannot be latter than the " + now);
+    }
   }
 }

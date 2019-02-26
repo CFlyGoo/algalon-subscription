@@ -1,8 +1,9 @@
 package com.apehat.algalon.subscription;
 
-import com.apehat.algalon.subscription.infra.StandardSubscriberRepository;
-import com.apehat.algalon.subscription.infra.topic.ClassTopic;
-import com.apehat.algalon.subscription.infra.topic.StringTopic;
+import com.apehat.algalon.subscription.infra.SimpleSubscriberRepository;
+import com.apehat.algalon.subscription.routing.ClassTopic;
+import com.apehat.algalon.subscription.routing.DefaultTopicMapper;
+import com.apehat.algalon.subscription.routing.StringTopic;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -12,8 +13,10 @@ import java.util.UUID;
  */
 public abstract class AbstractSubscriptionTest {
 
-  private final SubscriberRepository subscriberRepo = new StandardSubscriberRepository();
-  private final SubscriptionService subscriptionService = new SubscriptionService(subscriberRepo);
+  private final SubscriberRepository subscriberRepo = new SimpleSubscriberRepository();
+  private final TopicMapper topicMapper = new DefaultTopicMapper();
+  private final SubscriptionService subscriptionService =
+      new SubscriptionService(subscriberRepo, topicMapper);
 
   protected SubscriberId provisionSubscriberIdFixture() {
     return new MockSubscriberId(UUID.randomUUID().toString());
@@ -25,6 +28,10 @@ public abstract class AbstractSubscriptionTest {
 
   protected SubscriptionService provisionSubscriptionServiceFixture() {
     return subscriptionService;
+  }
+
+  protected TopicMapper provisionTopicMapperFixture() {
+    return topicMapper;
   }
 
   protected Digest provisionDigestFixture(Class<?> tpc) {

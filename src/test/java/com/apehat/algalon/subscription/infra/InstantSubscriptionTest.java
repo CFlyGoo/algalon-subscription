@@ -3,7 +3,7 @@ package com.apehat.algalon.subscription.infra;
 import com.apehat.algalon.subscription.AbstractSubscriptionTest;
 import com.apehat.algalon.subscription.Subscription;
 import com.apehat.algalon.subscription.Topic;
-import com.apehat.algalon.subscription.infra.topic.ClassTopic;
+import com.apehat.algalon.subscription.routing.ClassTopic;
 import org.junit.Test;
 
 /**

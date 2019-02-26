@@ -1,7 +1,10 @@
 package com.apehat.algalon.subscription;
 
-import com.apehat.algalon.subscription.infra.topic.ClassTopic;
-import com.apehat.algalon.subscription.infra.topic.StringTopic;
+import com.apehat.algalon.subscription.infra.InstantSubscriptionFactory;
+import com.apehat.algalon.subscription.infra.SimpleSubscriptionFactory;
+import com.apehat.algalon.subscription.routing.ClassTopic;
+import com.apehat.algalon.subscription.routing.StringTopic;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -12,17 +15,25 @@ import java.util.Set;
 public class SubscriptionService {
 
   private final SubscriberRepository subscriberRepository;
+  private final TopicMapper topicMapper;
 
-  public SubscriptionService(SubscriberRepository subscriberRepository) {
+  public SubscriptionService(SubscriberRepository subscriberRepository, TopicMapper topicMapper) {
     this.subscriberRepository = Objects.requireNonNull(subscriberRepository);
+    this.topicMapper = Objects.requireNonNull(topicMapper);
+  }
+
+  public void registerTimeLimitSubscriber(SubscriberId id) {
+    if (subscriberOf(id) != null) {
+      throw new IllegalStateException("Subscriber " + id + " already exists");
+    }
+    subscriberRegistry().save(new Subscriber(id, InstantSubscriptionFactory.getInstance()));
   }
 
   public void registerSubscriber(SubscriberId id) {
-    Subscriber subscriber = subscriberOf(id);
-    if (subscriber == null) {
-      subscriber = new Subscriber(id);
+    if (subscriberOf(id) != null) {
+      throw new IllegalStateException("Subscriber " + id + " already exists");
     }
-    subscriberRegistry().save(subscriber);
+    subscriberRegistry().save(new Subscriber(id, SimpleSubscriptionFactory.getInstance()));
   }
 
   public void subscribe(SubscriberId id, Class<?> topic) {
@@ -42,7 +53,7 @@ public class SubscriptionService {
   }
 
   public Set<SubscriberDescriptor> subscribersOf(Digest digest) {
-    Set<Subscriber> subscribers = subscriberRegistry().subscribersOf(digest);
+    Collection<Subscriber> subscribers = subscriberRegistry().subscribersOf(digest, topicMapper);
     Set<SubscriberDescriptor> descriptors = new LinkedHashSet<>();
     for (Subscriber subscriber : subscribers) {
       descriptors.add(subscriber.toDescriptor());

@@ -30,8 +30,8 @@ public class SubscriptionServiceTest extends AbstractSubscriptionTest {
     Pair pair = subscribeWithClass(id);
 
     Subscriber subscriber = provisionSubscriberRepositoryFixture().find(id);
-    assertFalse(subscriber.isSubscribed(pair.frontDigest));
-    assertTrue(subscriber.isSubscribed(pair.rearDigest));
+    assertFalse(subscriber.isSubscribed(pair.frontDigest, provisionTopicMapperFixture()));
+    assertTrue(subscriber.isSubscribed(pair.rearDigest, provisionTopicMapperFixture()));
   }
 
   @Test
@@ -40,8 +40,8 @@ public class SubscriptionServiceTest extends AbstractSubscriptionTest {
     Pair pair = subscribeWithString(id);
 
     Subscriber subscriber = provisionSubscriberRepositoryFixture().find(id);
-    assertFalse(subscriber.isSubscribed(pair.frontDigest));
-    assertTrue(subscriber.isSubscribed(pair.rearDigest));
+    assertFalse(subscriber.isSubscribed(pair.frontDigest, provisionTopicMapperFixture()));
+    assertTrue(subscriber.isSubscribed(pair.rearDigest, provisionTopicMapperFixture()));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -94,7 +94,7 @@ public class SubscriptionServiceTest extends AbstractSubscriptionTest {
 
   private SubscriberId register() {
     SubscriberId id = provisionSubscriberIdFixture();
-    provisionSubscriptionServiceFixture().registerSubscriber(id);
+    provisionSubscriptionServiceFixture().registerTimeLimitSubscriber(id);
     return id;
   }
 

@@ -1,4 +1,4 @@
-package com.apehat.algalon.subscription.infra.topic;
+package com.apehat.algalon.subscription.routing;
 
 import com.apehat.algalon.subscription.Topic;
 import java.util.Objects;

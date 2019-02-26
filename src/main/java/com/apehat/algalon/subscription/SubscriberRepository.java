@@ -1,6 +1,6 @@
 package com.apehat.algalon.subscription;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * @author cflygoo
@@ -11,5 +11,5 @@ public interface SubscriberRepository {
 
   Subscriber find(SubscriberId id);
 
-  Set<Subscriber> subscribersOf(Digest digest);
+  Collection<Subscriber> subscribersOf(Digest digest, TopicMapper topicMapper);
 }
